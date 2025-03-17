@@ -189,10 +189,15 @@ button:hover {
     border-bottom: 1px solid var(--border-color);
     align-items: center;
     justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
 }
 
 .mobile-header h2 {
-    font-size: 1.2rem;
+    display: none;
 }
 
 /* Video Container */
@@ -418,6 +423,7 @@ video {
         box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
         width: 85%;
         max-width: var(--sidebar-width);
+        z-index: 1000;
     }
     
     .sidebar.open {
@@ -426,31 +432,31 @@ video {
     
     .close-sidebar {
         display: block;
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        z-index: 1001;
     }
     
     .mobile-header {
         display: flex;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 5;
     }
     
     .main-content {
         padding-top: var(--header-height);
-        height: 100vh;
+        height: calc(100vh - var(--header-height));
     }
     
     .video-wrapper {
         grid-template-columns: 1fr;
+        height: 100%;
     }
     
     .video-box:first-child {
         position: absolute;
         width: 120px;
         height: 160px;
-        top: 20px;
+        top: 70px;
         right: 20px;
         z-index: 5;
     }
@@ -461,7 +467,7 @@ video {
     
     .chat-container {
         position: relative;
-        height: calc(50% - var(--header-height));
+        height: calc(100% - 50vh);
     }
     
     .messages {
@@ -470,24 +476,31 @@ video {
     }
     
     .message-input {
-        position: absolute;
+        position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        z-index: 2;
+        z-index: 100;
+        background: white;
+        padding: 10px;
+        border-top: 1px solid var(--border-color);
     }
 }
 
 @media (max-width: 480px) {
     .video-container {
-        height: 40%;
+        height: 50vh;
     }
     
     .video-box:first-child {
         width: 90px;
         height: 120px;
-        top: 10px;
+        top: 60px;
         right: 10px;
+    }
+    
+    .chat-container {
+        height: calc(100% - 50vh);
     }
     
     .control-button {

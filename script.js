@@ -110,7 +110,6 @@ function handleConnection(connection) {
 function handleIncomingCall(call) {
     showNotification('Входящий видеозвонок...');
     
-    // Если у нас уже есть активный звонок, отклоняем новый
     if (currentCall) {
         call.close();
         return;
@@ -118,24 +117,31 @@ function handleIncomingCall(call) {
     
     currentCall = call;
     
-    // Отвечаем на звонок с нашим видеопотоком (или пустым, если нет медиаустройств)
+    // Отвечаем на звонок с нашим видеопотоком
     call.answer(localStream);
     
     call.on('stream', (remoteStream) => {
         const remoteVideo = document.getElementById('remote-video');
         remoteVideo.srcObject = remoteStream;
         
-        // Добавляем обработчик, чтобы проверить, есть ли видеотрек
+        // Проверяем наличие видеотрека
         remoteVideo.onloadedmetadata = () => {
             const hasVideoTracks = remoteStream.getVideoTracks().length > 0;
+            const videoBox = document.querySelector('.video-box:nth-child(2)');
             
             if (hasVideoTracks) {
-                document.querySelector('.video-box:nth-child(2)').style.backgroundColor = "#000";
+                videoBox.style.backgroundColor = "#000";
                 showNotification('Видеосвязь установлена');
             } else {
-                document.querySelector('.video-box:nth-child(2)').style.backgroundColor = "#333";
+                videoBox.style.backgroundColor = "#333";
                 showNotification('Установлена только аудиосвязь');
             }
+        };
+        
+        // Обработка ошибок видеопотока
+        remoteVideo.onerror = (err) => {
+            console.error('Ошибка видеопотока:', err);
+            showNotification('Ошибка видеопотока');
         };
     });
     
@@ -144,22 +150,34 @@ function handleIncomingCall(call) {
         currentCall = null;
         showNotification('Звонок завершен');
     });
+    
+    call.on('error', (err) => {
+        console.error('Ошибка звонка:', err);
+        showNotification('Ошибка видеосвязи');
+    });
 }
 
 // Настройка видеопотока
 async function setupVideo() {
     try {
+        // Сначала пробуем получить видео и аудио
         localStream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: facingMode },
             audio: true
         });
+        
+        // Проверяем наличие видеотрека
+        const videoTrack = localStream.getVideoTracks()[0];
+        if (videoTrack) {
+            videoTrack.enabled = true;
+        }
+        
         document.getElementById('local-video').srcObject = localStream;
         return true;
     } catch (err) {
         console.error('Ошибка доступа к камере:', err);
-        showNotification('Не удалось получить доступ к камере и микрофону');
         
-        // Пробуем получить только аудио, если видео недоступно
+        // Пробуем получить только аудио
         try {
             localStream = await navigator.mediaDevices.getUserMedia({
                 video: false,
@@ -171,7 +189,7 @@ async function setupVideo() {
         } catch (audioErr) {
             console.error('Ошибка доступа к микрофону:', audioErr);
             
-            // Если и аудио не удалось получить, создаем пустой поток для возможности приема видео
+            // Создаем пустой поток для возможности приема видео
             localStream = new MediaStream();
             showNotification('Вы сможете видеть и слышать собеседника, но он вас - нет');
             return true;
@@ -364,7 +382,7 @@ function connectToPeer(peerId) {
             document.getElementById('connection-status').style.color = 'green';
             document.getElementById('remote-name').textContent = peerId;
             
-            // После успешного подключения для данных инициируем видеозвонок
+            // Инициируем видеозвонок
             if (localStream) {
                 currentCall = peer.call(peerId, localStream);
                 
@@ -372,29 +390,40 @@ function connectToPeer(peerId) {
                     const remoteVideo = document.getElementById('remote-video');
                     remoteVideo.srcObject = remoteStream;
                     
-                    // Добавляем обработчик, чтобы проверить, есть ли видеотрек
                     remoteVideo.onloadedmetadata = () => {
                         const hasVideoTracks = remoteStream.getVideoTracks().length > 0;
+                        const videoBox = document.querySelector('.video-box:nth-child(2)');
                         
                         if (hasVideoTracks) {
-                            document.querySelector('.video-box:nth-child(2)').style.backgroundColor = "#000";
+                            videoBox.style.backgroundColor = "#000";
                             showNotification('Видеосвязь установлена');
                         } else {
-                            document.querySelector('.video-box:nth-child(2)').style.backgroundColor = "#333";
+                            videoBox.style.backgroundColor = "#333";
                             showNotification('Установлена только аудиосвязь');
                         }
+                    };
+                    
+                    remoteVideo.onerror = (err) => {
+                        console.error('Ошибка видеопотока:', err);
+                        showNotification('Ошибка видеопотока');
                     };
                 });
                 
                 currentCall.on('close', () => {
                     document.getElementById('remote-video').srcObject = null;
                     currentCall = null;
+                    showNotification('Звонок завершен');
                 });
                 
                 currentCall.on('error', (err) => {
                     console.error('Ошибка видеосвязи:', err);
                     showNotification('Ошибка видеосвязи');
                 });
+            }
+            
+            // Закрываем боковое меню на мобильных после успешного подключения
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
             }
         });
         
