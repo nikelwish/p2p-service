@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P Чат и Видеосвязь</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0084ff">
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <button class="close-sidebar" id="close-sidebar"><i class="fas fa-times"></i></button>
+            <div class="connection-status">
+                <h2>Ваш ID: <span id="peer-id">Подключение...</span></h2>
+                <button id="copy-id" class="icon-button"><i class="fas fa-copy"></i> Копировать ID</button>
+                <div class="connect-form">
+                    <input type="text" id="connect-to-id" placeholder="Введите ID собеседника">
+                    <button id="connect-btn">Подключиться</button>
+                </div>
+                <div class="connection-info">
+                    <p>Статус: <span id="connection-status">Не подключен</span></p>
+                </div>
+            </div>
+            
+            <div class="device-settings">
+                <h3>Настройки устройства</h3>
+                <div class="settings-row">
+                    <button id="toggle-camera" class="icon-button"><i class="fas fa-video"></i></button>
+                    <button id="switch-camera" class="icon-button"><i class="fas fa-sync"></i></button>
+                    <button id="toggle-mic" class="icon-button"><i class="fas fa-microphone"></i></button>
+                    <button id="share-file" class="icon-button"><i class="fas fa-file-upload"></i></button>
+                </div>
+                <input type="file" id="file-input" style="display: none;">
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="mobile-header">
+                <button id="open-sidebar" class="icon-button"><i class="fas fa-bars"></i></button>
+                <h2>P2P Чат</h2>
+                <button id="fullscreen-toggle" class="icon-button"><i class="fas fa-expand"></i></button>
+            </div>
+            
+            <div class="video-container">
+                <div class="video-wrapper">
+                    <div class="video-box">
+                        <video id="local-video" autoplay muted playsinline></video>
+                        <div class="video-overlay local">
+                            <span>Вы</span>
+                        </div>
+                    </div>
+                    <div class="video-box">
+                        <video id="remote-video" autoplay playsinline></video>
+                        <div class="video-overlay remote">
+                            <span id="remote-name">Собеседник</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-controls">
+                    <button id="toggle-video" class="control-button"><i class="fas fa-video"></i></button>
+                    <button id="toggle-audio" class="control-button"><i class="fas fa-microphone"></i></button>
+                    <button id="switch-cam" class="control-button"><i class="fas fa-camera-rotate"></i></button>
+                    <button id="take-snapshot" class="control-button"><i class="fas fa-camera"></i></button>
+                </div>
+            </div>
+            
+            <div class="chat-container">
+                <div class="messages" id="messages"></div>
+                <div class="file-preview" id="file-preview" style="display: none;">
+                    <div class="file-info" id="file-info"></div>
+                    <button id="cancel-file" class="icon-button"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="message-input">
+                    <button id="attach-file" class="icon-button"><i class="fas fa-paperclip"></i></button>
+                    <input type="text" id="message-input" placeholder="Введите сообщение...">
+                    <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <div class="notification-content">
+            <p id="notification-message"></p>
+        </div>
+    </div>
+
+    <div id="snapshot-preview" class="snapshot-preview">
+        <div class="snapshot-container">
+            <img id="snapshot-image" src="" alt="Снимок">
+            <div class="snapshot-controls">
+                <button id="download-snapshot" class="icon-button"><i class="fas fa-download"></i> Сохранить</button>
+                <button id="share-snapshot" class="icon-button"><i class="fas fa-share"></i> Поделиться</button>
+                <button id="close-snapshot" class="icon-button"><i class="fas fa-times"></i> Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
