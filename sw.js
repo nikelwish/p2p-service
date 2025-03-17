@@ -1,10 +1,10 @@
 const CACHE_NAME = 'p2p-chat-cache-v1';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/script.js',
-  '/manifest.json',
+  './',
+  './index.html',
+  './styles.css',
+  './script.js',
+  './manifest.json',
   'https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];

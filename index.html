@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>P2P Чат и Видеосвязь</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
@@ -18,7 +18,7 @@
                 <h2>Ваш ID: <span id="peer-id">Подключение...</span></h2>
                 <button id="copy-id" class="icon-button"><i class="fas fa-copy"></i> Копировать ID</button>
                 <div class="connect-form">
-                    <input type="text" id="connect-to-id" placeholder="Введите ID собеседника">
+                    <input type="text" id="connect-to-id" placeholder="Введите ID собеседника" autocomplete="off" autocorrect="off" autocapitalize="none">
                     <button id="connect-btn">Подключиться</button>
                 </div>
                 <div class="connection-info">
@@ -76,7 +76,7 @@
                 </div>
                 <div class="message-input">
                     <button id="attach-file" class="icon-button"><i class="fas fa-paperclip"></i></button>
-                    <input type="text" id="message-input" placeholder="Введите сообщение...">
+                    <input type="text" id="message-input" placeholder="Введите сообщение..." autocomplete="off" autocorrect="off">
                     <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>

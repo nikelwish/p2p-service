@@ -15,11 +15,13 @@ let notificationPermission = false;
 // Регистрация Service Worker для PWA
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then(registration => {
-            console.log('ServiceWorker зарегистрирован: ', registration.scope);
-        }).catch(error => {
-            console.error('Ошибка регистрации ServiceWorker: ', error);
-        });
+        navigator.serviceWorker.register('./sw.js')
+            .then(registration => {
+                console.log('ServiceWorker зарегистрирован: ', registration.scope);
+            })
+            .catch(error => {
+                console.error('Ошибка регистрации ServiceWorker: ', error);
+            });
     });
 }
 
@@ -116,11 +118,25 @@ function handleIncomingCall(call) {
     
     currentCall = call;
     
-    // Отвечаем на звонок с нашим видеопотоком
+    // Отвечаем на звонок с нашим видеопотоком (или пустым, если нет медиаустройств)
     call.answer(localStream);
     
     call.on('stream', (remoteStream) => {
-        document.getElementById('remote-video').srcObject = remoteStream;
+        const remoteVideo = document.getElementById('remote-video');
+        remoteVideo.srcObject = remoteStream;
+        
+        // Добавляем обработчик, чтобы проверить, есть ли видеотрек
+        remoteVideo.onloadedmetadata = () => {
+            const hasVideoTracks = remoteStream.getVideoTracks().length > 0;
+            
+            if (hasVideoTracks) {
+                document.querySelector('.video-box:nth-child(2)').style.backgroundColor = "#000";
+                showNotification('Видеосвязь установлена');
+            } else {
+                document.querySelector('.video-box:nth-child(2)').style.backgroundColor = "#333";
+                showNotification('Установлена только аудиосвязь');
+            }
+        };
     });
     
     call.on('close', () => {
@@ -142,7 +158,24 @@ async function setupVideo() {
     } catch (err) {
         console.error('Ошибка доступа к камере:', err);
         showNotification('Не удалось получить доступ к камере и микрофону');
-        return false;
+        
+        // Пробуем получить только аудио, если видео недоступно
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({
+                video: false,
+                audio: true
+            });
+            document.getElementById('local-video').srcObject = localStream;
+            showNotification('Доступен только микрофон');
+            return true;
+        } catch (audioErr) {
+            console.error('Ошибка доступа к микрофону:', audioErr);
+            
+            // Если и аудио не удалось получить, создаем пустой поток для возможности приема видео
+            localStream = new MediaStream();
+            showNotification('Вы сможете видеть и слышать собеседника, но он вас - нет');
+            return true;
+        }
     }
 }
 
@@ -336,7 +369,21 @@ function connectToPeer(peerId) {
                 currentCall = peer.call(peerId, localStream);
                 
                 currentCall.on('stream', (remoteStream) => {
-                    document.getElementById('remote-video').srcObject = remoteStream;
+                    const remoteVideo = document.getElementById('remote-video');
+                    remoteVideo.srcObject = remoteStream;
+                    
+                    // Добавляем обработчик, чтобы проверить, есть ли видеотрек
+                    remoteVideo.onloadedmetadata = () => {
+                        const hasVideoTracks = remoteStream.getVideoTracks().length > 0;
+                        
+                        if (hasVideoTracks) {
+                            document.querySelector('.video-box:nth-child(2)').style.backgroundColor = "#000";
+                            showNotification('Видеосвязь установлена');
+                        } else {
+                            document.querySelector('.video-box:nth-child(2)').style.backgroundColor = "#333";
+                            showNotification('Установлена только аудиосвязь');
+                        }
+                    };
                 });
                 
                 currentCall.on('close', () => {
@@ -571,6 +618,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('connect-btn').addEventListener('click', () => {
         const peerId = document.getElementById('connect-to-id').value;
         connectToPeer(peerId);
+        // Закрываем боковое меню после нажатия на кнопку подключения на мобильных
+        if (window.innerWidth <= 768) {
+            document.getElementById('sidebar').classList.remove('open');
+        }
     });
 
     // Отправка сообщения
@@ -588,6 +639,20 @@ document.addEventListener('DOMContentLoaded', () => {
     
     document.getElementById('close-sidebar').addEventListener('click', () => {
         document.getElementById('sidebar').classList.remove('open');
+    });
+    
+    // Добавляем обработчик клика вне сайдбара для его закрытия на мобильных
+    document.addEventListener('click', (e) => {
+        const sidebar = document.getElementById('sidebar');
+        const openSidebarBtn = document.getElementById('open-sidebar');
+        
+        // Если клик был вне сайдбара и не на кнопке открытия сайдбара
+        if (window.innerWidth <= 768 && 
+            sidebar.classList.contains('open') && 
+            !sidebar.contains(e.target) && 
+            e.target !== openSidebarBtn) {
+            sidebar.classList.remove('open');
+        }
     });
     
     // Управление камерой и микрофоном
