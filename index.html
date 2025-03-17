@@ -14,22 +14,58 @@
     <div class="container">
         <div class="sidebar" id="sidebar">
             <button class="close-sidebar" id="close-sidebar"><i class="fas fa-times"></i></button>
-            <div class="connection-status">
-                <h2>Ваш ID: <span id="peer-id">Подключение...</span></h2>
-                <div class="id-controls">
-                    <button id="copy-id" class="icon-button" title="Копировать ID"><i class="fas fa-copy"></i></button>
-                    <button id="change-id" class="icon-button" title="Изменить ID"><i class="fas fa-edit"></i></button>
-                </div>
-                <div class="connect-form">
-                    <input type="text" id="connect-to-id" placeholder="Введите ID собеседника" autocomplete="off" autocorrect="off" autocapitalize="none">
-                    <button id="connect-btn">Подключиться</button>
-                </div>
-                <div class="connection-info">
-                    <p>Статус: <span id="connection-status">Не подключен</span></p>
+            
+            <div class="sidebar-tabs">
+                <button class="tab-button active" data-tab="connect"><i class="fas fa-plug"></i> Соединение</button>
+                <button class="tab-button" data-tab="contacts"><i class="fas fa-address-book"></i> Контакты</button>
+                <button class="tab-button" data-tab="settings"><i class="fas fa-cog"></i> Настройки</button>
+            </div>
+            
+            <div class="tab-content" data-tab="connect">
+                <div class="connection-status">
+                    <h2>Ваш ID: <span id="peer-id">Подключение...</span></h2>
+                    <div class="user-status">
+                        <div class="status-indicator">
+                            <span id="user-status-indicator"></span>
+                            <span id="user-status-text">Подключение...</span>
+                        </div>
+                        <button id="status-toggle" class="icon-button" title="Изменить статус"><i class="fas fa-sync"></i></button>
+                    </div>
+                    <div class="id-controls">
+                        <button id="copy-id" class="icon-button" title="Копировать ID"><i class="fas fa-copy"></i></button>
+                        <button id="change-id" class="icon-button" title="Изменить ID"><i class="fas fa-edit"></i></button>
+                    </div>
+                    <div class="connect-form">
+                        <input type="text" id="connect-to-id" placeholder="Введите ID собеседника" autocomplete="off" autocorrect="off" autocapitalize="none">
+                        <button id="connect-btn">Подключиться</button>
+                    </div>
+                    <div class="connection-info">
+                        <p>Статус: <span id="connection-status">Не подключен</span></p>
+                    </div>
+                    <div class="create-group">
+                        <button id="create-group" class="secondary-btn">Создать групповой чат</button>
+                    </div>
                 </div>
             </div>
             
-            <div class="device-settings">
+            <div class="tab-content" data-tab="contacts" style="display: none;">
+                <h3>Контакты</h3>
+                <div id="contacts-list" class="contacts-list">
+                    <!-- Здесь будут контакты -->
+                </div>
+                
+                <div class="connection-actions">
+                    <button id="add-current-contact" class="secondary-btn">Добавить текущий контакт</button>
+                    <button id="disconnect-btn" class="secondary-btn">Разорвать соединение</button>
+                </div>
+                
+                <div id="connection-requests" class="connection-requests" style="display: none;">
+                    <h4>Запросы на подключение</h4>
+                    <!-- Здесь будут запросы на подключение -->
+                </div>
+            </div>
+            
+            <div class="tab-content" data-tab="settings" style="display: none;">
                 <h3>Настройки устройства</h3>
                 <div class="settings-row">
                     <button id="toggle-camera" class="icon-button" title="Включить/выключить камеру"><i class="fas fa-video"></i></button>
