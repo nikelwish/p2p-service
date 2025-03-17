@@ -16,7 +16,10 @@
             <button class="close-sidebar" id="close-sidebar"><i class="fas fa-times"></i></button>
             <div class="connection-status">
                 <h2>Ваш ID: <span id="peer-id">Подключение...</span></h2>
-                <button id="copy-id" class="icon-button"><i class="fas fa-copy"></i> Копировать ID</button>
+                <div class="id-controls">
+                    <button id="copy-id" class="icon-button" title="Копировать ID"><i class="fas fa-copy"></i></button>
+                    <button id="change-id" class="icon-button" title="Изменить ID"><i class="fas fa-edit"></i></button>
+                </div>
                 <div class="connect-form">
                     <input type="text" id="connect-to-id" placeholder="Введите ID собеседника" autocomplete="off" autocorrect="off" autocapitalize="none">
                     <button id="connect-btn">Подключиться</button>
@@ -40,8 +43,10 @@
         
         <div class="main-content">
             <div class="mobile-header">
-                <button id="open-sidebar" class="icon-button"><i class="fas fa-bars"></i></button>
-                <button id="fullscreen-toggle" class="icon-button"><i class="fas fa-expand"></i></button>
+                <button id="open-sidebar" class="icon-button" title="Меню"><i class="fas fa-bars"></i></button>
+                <div class="header-controls">
+                    <button id="fullscreen-toggle" class="icon-button" title="Полный экран"><i class="fas fa-expand"></i></button>
+                </div>
             </div>
             
             <div class="video-container">
@@ -64,6 +69,7 @@
                     <button id="toggle-audio" class="control-button" title="Включить/выключить микрофон"><i class="fas fa-microphone"></i></button>
                     <button id="switch-cam" class="control-button" title="Переключить камеру"><i class="fas fa-camera-rotate"></i></button>
                     <button id="take-snapshot" class="control-button" title="Сделать снимок"><i class="fas fa-camera"></i></button>
+                    <button id="restart-connection" class="control-button" title="Диагностика соединения"><i class="fas fa-sync"></i></button>
                 </div>
             </div>
             
@@ -74,9 +80,9 @@
                     <button id="cancel-file" class="icon-button"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="message-input">
-                    <button id="attach-file" class="icon-button"><i class="fas fa-paperclip"></i></button>
+                    <button id="attach-file" class="icon-button" title="Прикрепить файл"><i class="fas fa-paperclip"></i></button>
                     <input type="text" id="message-input" placeholder="Введите сообщение..." autocomplete="off" autocorrect="off">
-                    <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+                    <button id="send-btn" title="Отправить"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>
