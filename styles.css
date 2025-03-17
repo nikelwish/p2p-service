@@ -709,18 +709,24 @@ video {
         width: 85%;
         max-width: var(--sidebar-width);
         z-index: 1000;
+        padding-top: 60px;
     }
     
     .sidebar.open {
         transform: translateX(0);
+        z-index: 1100;
     }
     
     .close-sidebar {
         display: block;
         position: absolute;
-        right: 10px;
-        top: 10px;
-        z-index: 1001;
+        right: 15px;
+        top: 15px;
+        z-index: 10;
+        background-color: var(--bg-color);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
     }
     
     .mobile-header {
@@ -793,6 +799,22 @@ video {
         right: 0;
         z-index: 99;
     }
+    
+    .icon-button,
+    .control-button {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 12px;
+    }
+    
+    .tab-button {
+        padding: 15px 10px;
+    }
+    
+    .video-controls {
+        z-index: 5;
+        position: relative;
+    }
 }
 
 @media (max-width: 480px) {
@@ -834,4 +856,26 @@ video {
         width: 35px;
         height: 35px;
     }
+}
+
+/* Исправления для проблем с кликабельностью элементов */
+button, 
+.tab-button, 
+.icon-button, 
+.control-button,
+input[type="text"],
+input[type="file"] {
+    pointer-events: auto !important;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    touch-action: manipulation;
+}
+
+/* Fix для неработающих вкладок */
+.sidebar-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
 } 

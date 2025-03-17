@@ -1913,10 +1913,47 @@ function diagnoseAndFixConnection() {
 }
 
 // Обработчики событий
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
     requestPermissions();
     initializePeer();
     setupVideo();
+
+    // Инициализируем вкладки напрямую (без использования функции, которая может не исполниться)
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    if (tabButtons.length > 0) {
+        console.log("Инициализация вкладок, найдено:", tabButtons.length);
+        
+        // Деактивируем все вкладки сначала
+        tabContents.forEach(content => {
+            content.style.display = 'none';
+        });
+        
+        // Показываем первую вкладку по умолчанию
+        const firstTabId = tabButtons[0].getAttribute('data-tab');
+        document.querySelector(`.tab-content[data-tab="${firstTabId}"]`).style.display = 'block';
+        
+        // Добавляем обработчики для кнопок вкладок
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("Клик по вкладке:", button.getAttribute('data-tab'));
+                
+                // Деактивируем все вкладки
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.style.display = 'none');
+                
+                // Активируем выбранную вкладку
+                const tabId = button.getAttribute('data-tab');
+                button.classList.add('active');
+                document.querySelector(`.tab-content[data-tab="${tabId}"]`).style.display = 'block';
+            });
+        });
+    } else {
+        console.error("Не найдены кнопки вкладок!");
+    }
 
     // Периодическая проверка воспроизведения видео
     setInterval(checkAndRestoreVideoPlayback, 5000);
@@ -1924,14 +1961,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // Периодическая диагностика соединения
     setInterval(diagnoseAndFixConnection, 10000);
 
-    // Подключение к пиру
-    document.getElementById('connect-btn').addEventListener('click', () => {
-        const peerId = document.getElementById('connect-to-id').value;
-        connectToPeer(peerId);
-    });
+    // Подключение к пиру - добавляем явный обработчик события с проверкой
+    const connectBtn = document.getElementById('connect-btn');
+    if (connectBtn) {
+        connectBtn.addEventListener('click', function() {
+            const peerId = document.getElementById('connect-to-id').value;
+            connectToPeer(peerId);
+        });
+    } else {
+        console.error("Не найдена кнопка подключения!");
+    }
 
     // Добавляем кнопку для изменения ID
-    document.getElementById('change-id').addEventListener('click', changeUserId);
+    const changeIdBtn = document.getElementById('change-id');
+    if (changeIdBtn) {
+        changeIdBtn.addEventListener('click', changeUserId);
+    }
     
     // Добавляем кнопку для создания группового чата
     const createGroupBtn = document.getElementById('create-group');
@@ -1948,7 +1993,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Кнопка добавления текущего контакта
     const addCurrentContactBtn = document.getElementById('add-current-contact');
     if (addCurrentContactBtn) {
-        addCurrentContactBtn.addEventListener('click', () => {
+        addCurrentContactBtn.addEventListener('click', function() {
             if (conn) {
                 const name = prompt('Введите имя для контакта:', conn.peer);
                 if (name) {
@@ -1967,25 +2012,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Добавляем обработчик клика по видео для возобновления воспроизведения
-    document.getElementById('remote-video').addEventListener('click', () => {
-        const remoteVideo = document.getElementById('remote-video');
-        if (remoteVideo.paused && remoteVideo.srcObject) {
-            console.log("Попытка возобновить воспроизведение видео после клика");
-            remoteVideo.play().catch(e => {
-                console.error("Не удалось возобновить воспроизведение:", e);
-            });
-        }
-    });
+    const remoteVideo = document.getElementById('remote-video');
+    if (remoteVideo) {
+        remoteVideo.addEventListener('click', function() {
+            if (remoteVideo.paused && remoteVideo.srcObject) {
+                console.log("Попытка возобновить воспроизведение видео после клика");
+                remoteVideo.play().catch(e => {
+                    console.error("Не удалось возобновить воспроизведение:", e);
+                });
+            }
+        });
+    }
     
-    document.getElementById('local-video').addEventListener('click', () => {
-        const localVideo = document.getElementById('local-video');
-        if (localVideo.paused && localVideo.srcObject) {
-            console.log("Попытка возобновить воспроизведение локального видео после клика");
-            localVideo.play().catch(e => {
-                console.error("Не удалось возобновить воспроизведение:", e);
-            });
-        }
-    });
+    const localVideo = document.getElementById('local-video');
+    if (localVideo) {
+        localVideo.addEventListener('click', function() {
+            if (localVideo.paused && localVideo.srcObject) {
+                console.log("Попытка возобновить воспроизведение локального видео после клика");
+                localVideo.play().catch(e => {
+                    console.error("Не удалось возобновить воспроизведение:", e);
+                });
+            }
+        });
+    }
 
     // Обработчик события изменения состояния полноэкранного режима
     document.addEventListener('fullscreenchange', updateFullscreenButton);
@@ -1999,115 +2048,136 @@ document.addEventListener('DOMContentLoaded', () => {
                              document.mozFullScreenElement ||
                              document.msFullscreenElement;
         
-        document.getElementById('fullscreen-toggle').innerHTML = isFullscreen ? 
-            '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+        const fullscreenBtn = document.getElementById('fullscreen-toggle');
+        if (fullscreenBtn) {
+            fullscreenBtn.innerHTML = isFullscreen ? 
+                '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+        }
     }
 
     // Отправка сообщения
-    document.getElementById('send-btn').addEventListener('click', sendMessage);
-    document.getElementById('message-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            sendMessage();
-        }
-    });
+    const sendBtn = document.getElementById('send-btn');
+    if (sendBtn) {
+        sendBtn.addEventListener('click', sendMessage);
+    }
+    
+    const messageInput = document.getElementById('message-input');
+    if (messageInput) {
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    }
     
     // Мобильное меню
-    document.getElementById('open-sidebar').addEventListener('click', () => {
-        document.getElementById('sidebar').classList.add('open');
-    });
+    const openSidebarBtn = document.getElementById('open-sidebar');
+    if (openSidebarBtn) {
+        openSidebarBtn.addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.add('open');
+            }
+        });
+    }
     
-    document.getElementById('close-sidebar').addEventListener('click', () => {
-        document.getElementById('sidebar').classList.remove('open');
-    });
+    const closeSidebarBtn = document.getElementById('close-sidebar');
+    if (closeSidebarBtn) {
+        closeSidebarBtn.addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.remove('open');
+            }
+        });
+    }
     
     // Добавляем обработчик клика вне сайдбара для его закрытия на мобильных
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', function(e) {
         const sidebar = document.getElementById('sidebar');
         const openSidebarBtn = document.getElementById('open-sidebar');
         
         // Если клик был вне сайдбара и не на кнопке открытия сайдбара
         if (window.innerWidth <= 768 && 
-            sidebar.classList.contains('open') && 
+            sidebar && sidebar.classList.contains('open') && 
             !sidebar.contains(e.target) && 
             e.target !== openSidebarBtn) {
             sidebar.classList.remove('open');
         }
     });
     
-    // Управление камерой и микрофоном
-    document.getElementById('toggle-video').addEventListener('click', toggleVideo);
-    document.getElementById('toggle-camera').addEventListener('click', toggleVideo);
-    document.getElementById('toggle-audio').addEventListener('click', toggleAudio);
-    document.getElementById('toggle-mic').addEventListener('click', toggleAudio);
+    // Управление камерой и микрофоном - убедитесь, что элементы существуют
+    const toggleVideoBtn = document.getElementById('toggle-video');
+    if (toggleVideoBtn) {
+        toggleVideoBtn.addEventListener('click', toggleVideo);
+    }
+    
+    const toggleCameraBtn = document.getElementById('toggle-camera');
+    if (toggleCameraBtn) {
+        toggleCameraBtn.addEventListener('click', toggleVideo);
+    }
+    
+    const toggleAudioBtn = document.getElementById('toggle-audio');
+    if (toggleAudioBtn) {
+        toggleAudioBtn.addEventListener('click', toggleAudio);
+    }
+    
+    const toggleMicBtn = document.getElementById('toggle-mic');
+    if (toggleMicBtn) {
+        toggleMicBtn.addEventListener('click', toggleAudio);
+    }
     
     // Переключение камеры
-    document.getElementById('switch-cam').addEventListener('click', switchCamera);
-    document.getElementById('switch-camera').addEventListener('click', switchCamera);
+    const switchCamBtn = document.getElementById('switch-cam');
+    if (switchCamBtn) {
+        switchCamBtn.addEventListener('click', switchCamera);
+    }
+    
+    const switchCameraBtn = document.getElementById('switch-camera');
+    if (switchCameraBtn) {
+        switchCameraBtn.addEventListener('click', switchCamera);
+    }
     
     // Снимок экрана
-    document.getElementById('take-snapshot').addEventListener('click', takeSnapshot);
+    const takeSnapshotBtn = document.getElementById('take-snapshot');
+    if (takeSnapshotBtn) {
+        takeSnapshotBtn.addEventListener('click', takeSnapshot);
+    }
     
     // Диагностика соединения
-    document.getElementById('restart-connection').addEventListener('click', function() {
-        showNotification('Запуск диагностики и восстановления соединения...');
-        diagnoseAndFixConnection();
-    });
+    const restartConnectionBtn = document.getElementById('restart-connection');
+    if (restartConnectionBtn) {
+        restartConnectionBtn.addEventListener('click', function() {
+            showNotification('Запуск диагностики и восстановления соединения...');
+            diagnoseAndFixConnection();
+        });
+    }
     
     // Копирование ID
-    document.getElementById('copy-id').addEventListener('click', copyPeerId);
+    const copyIdBtn = document.getElementById('copy-id');
+    if (copyIdBtn) {
+        copyIdBtn.addEventListener('click', copyPeerId);
+    }
     
     // Полноэкранный режим
-    document.getElementById('fullscreen-toggle').addEventListener('click', toggleFullscreen);
+    const fullscreenToggleBtn = document.getElementById('fullscreen-toggle');
+    if (fullscreenToggleBtn) {
+        fullscreenToggleBtn.addEventListener('click', toggleFullscreen);
+    }
     
     // Прикрепление файла
-    document.getElementById('attach-file').addEventListener('click', shareFile);
-    document.getElementById('share-file').addEventListener('click', shareFile);
+    const attachFileBtn = document.getElementById('attach-file');
+    if (attachFileBtn) {
+        attachFileBtn.addEventListener('click', shareFile);
+    }
     
-    // Инициализируем вкладки в сайдбаре
-    initSidebarTabs();
+    const shareFileBtn = document.getElementById('share-file');
+    if (shareFileBtn) {
+        shareFileBtn.addEventListener('click', shareFile);
+    }
+    
+    // Загружаем контакты
+    loadContacts();
 });
-
-// Инициализация вкладок в сайдбаре
-function initSidebarTabs() {
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
-    if (!tabButtons.length) return;
-    
-    // Функция для активации вкладки
-    function activateTab(tabId) {
-        // Деактивируем все вкладки
-        tabButtons.forEach(button => button.classList.remove('active'));
-        tabContents.forEach(content => content.style.display = 'none');
-        
-        // Активируем выбранную вкладку
-        document.querySelector(`.tab-button[data-tab="${tabId}"]`).classList.add('active');
-        document.querySelector(`.tab-content[data-tab="${tabId}"]`).style.display = 'block';
-    }
-    
-    // Добавляем обработчики для кнопок вкладок
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const tabId = button.getAttribute('data-tab');
-            activateTab(tabId);
-        });
-    });
-    
-    // Активируем первую вкладку по умолчанию
-    activateTab(tabButtons[0].getAttribute('data-tab'));
-}
-
-// Переключение статуса пользователя
-function toggleUserStatus() {
-    if (userStatus === 'available') {
-        setUserStatus('away');
-    } else if (userStatus === 'away') {
-        setUserStatus('available');
-    } else {
-        // Если занят, нельзя менять статус
-        showNotification('Нельзя изменить статус во время активного соединения');
-    }
-}
 
 // Функции для системы контактов и управления подключениями
 
@@ -2202,4 +2272,16 @@ function updateContactsList() {
         
         contactsListEl.appendChild(contactEl);
     });
-} 
+}
+
+// Переключение статуса пользователя
+function toggleUserStatus() {
+    if (userStatus === 'available') {
+        setUserStatus('away');
+    } else if (userStatus === 'away') {
+        setUserStatus('available');
+    } else {
+        // Если занят, нельзя менять статус
+        showNotification('Нельзя изменить статус во время активного соединения');
+    }
+}
